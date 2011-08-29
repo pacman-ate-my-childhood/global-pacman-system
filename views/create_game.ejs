@@ -1,0 +1,32 @@
+
+<h3>GLOBAL PACMAN SYSTEM</h3>
+
+<ul class="menu">
+	<li>
+		<a href="/create_map">Create a new map</a>
+	</li>
+	<li>
+		Start game on map:
+	</li>
+   <% _(maps).each(function(map) { %>
+      <li>
+         <a href="#" class="map" data-map="<%=map%>"><%=map%></a>
+      </li>
+   <% }); %>
+</ul>
+
+<script type="text/javascript">
+
+	$('.map').bind('click', function(evt) {
+		$.ajax('/api/game/create', {
+			type: 'POST',
+			data: { map_id: $(this).data('map') },
+			dataType: 'json',
+			success: function(data) {
+				if (!data.error) { window.location = window.location.protocol + '//' + window.location.host + '/game/' + data.game.id + '/'; }
+				else { alert('error creating game'); console.log(data.error); }
+			}
+		});
+	});
+
+</script>

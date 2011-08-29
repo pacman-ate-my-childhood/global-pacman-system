@@ -1,0 +1,28 @@
+
+<h1><span class="initials">GPS</span></h1>
+<h2>The pacman you play by running on your street</h2>
+
+<h2>Register</h2>
+
+<% if (typeof errors !== 'undefined' && errors.length) { %>
+<ul id="errors">
+   <% for (var i = 0, len = errors.length; i < len; i++) { %>
+      <li class="error"><%=errors[i]%></li>
+   <% } %>
+</ul>
+<% } %>
+
+<form action="/register" method="post">
+   <div id="login">
+      <label for="<%= everyauth.password.loginFormFieldName%>">Username</label>
+      <input type="text" name="<%= everyauth.password.loginFormFieldName%>" />
+   </div>
+   <div id="password">
+      <label for="<%= everyauth.password.passwordFormFieldName%>">Password</label>
+      <input type="password" name="<%= everyauth.password.passwordFormFieldName%>" />
+   </div>
+   <div id="submit">
+      <input type="submit" value="Register" />
+   </div>
+</form>
+   

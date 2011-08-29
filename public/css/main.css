@@ -1,0 +1,156 @@
+@font-face {
+	font-family: 'arcade';
+	src: url('/static/fonts/arcade.ttf')  format('truetype')
+}
+
+@font-face {
+	font-family: 'pac';
+	src: url('/static/fonts/pacfont.ttf')  format('truetype')
+}
+
+body {
+   padding:0;
+   margin:0;
+}
+
+#container {
+   width: 320px;
+   overflow:hidden;
+}
+
+li {
+   list-style: none;
+}
+
+a {
+	color:yellow;
+}
+
+h1 .initials {
+	font-family: pac;
+	font-size: 70px;
+	display:block;
+	color:yellow;
+	margin-bottom:10px;
+	margin-top:0;
+}
+
+h3 {
+   font-family: pac;
+   font-size: 20px;
+   line-height: 25px;
+}
+
+body {
+	background-color: black;
+	color:white;
+	text-align: center;
+	font-family: arcade;
+}
+
+ul.menu {
+	width:100%;
+   margin: 0;
+   padding: 0;
+   margin-bottom: 10px;
+}
+
+ul.menu li {
+   list-item: none;
+}
+
+ul.menu li a {
+	color:yellow;
+}
+
+ul.list {
+   margin: 0;
+   padding: 0;
+}
+
+ul.list li {
+   margin: 0;
+   padding: 0;
+   list-item: none;
+}
+
+.nogames {
+	color:#00ff00;
+}
+
+.game .playerlist,
+.game .playerlist ul,
+.game .playerlist li{
+}
+.game .playerlist ul {
+	margin: 0;padding: 0;
+}
+.game .playerlist li:nth-child(odd) {
+	color:#ffff00;
+}
+
+.game .gameinfo {
+	color:#0f0;
+	display:block;
+}
+
+div.ghosts{
+display:inline-block;
+	/*margin-left:auto;
+	margin-right:auto;*/
+	width:200px;
+	margin-top:10px;
+	text-align: left;
+
+}
+div.lives{
+	display:inline-block;
+	/*margin-left:auto;
+	margin-right:auto;*/
+	width:200px;
+	margin-top:10px;
+	text-align: right;
+}
+
+div.lives img{
+	margin-left:5px;
+}
+
+#canvasContainer {
+	position:relative;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.game canvas {
+	position:absolute;
+	top:0;
+	left:0;
+	display:block;
+}
+
+.game-header {
+   width:100%;
+   margin:0;
+   padding:0;
+}
+
+.game-header li {
+   display: inline-block;
+   width: 33%;
+}
+
+.ghosts {
+   visibility: hidden;
+}
+
+select {
+   width: 100%;
+}
+
+iframe {
+   margin-top: 20px;
+   position: absolute;
+   left: 20px;
+   right: 20px;
+}

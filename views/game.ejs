@@ -1,0 +1,220 @@
+<div class="game">
+
+   <ul class="game-header">
+      <li>score: <span id="score"></span></li>
+      <li><%= game.users[user.id] %></li>
+      <li>mode: <span id="mode"><%= game.mode %></span></li>
+   </ul> 
+   
+
+	<!-- where all the magic happens! -->
+	<div id="canvasContainer" style="width:320px; height:400px">
+		<canvas id="mapCanvas" width="320" height="400">
+		</canvas>
+		<canvas id="charCanvas" width="320" height="400">
+		</canvas>
+	</div>
+
+	<ul class="menu">
+		<li><a href='#' id='leave'>leave this game</a></li>
+		<li><a href='#' id='end'>delete this game</a></li>
+	</ul>
+
+	<span class="gameinfo">current map:</span> <span class='map'><%=map.id%></span>
+	<br/>
+	<span class="gameinfo">created by:</span> <span class='created_by'><%=game.created_by%></span>
+   <br/>
+	<div class="playerlist">
+		<span class="gameinfo">In this game we have:</span>
+		<ul class="list" id="users">
+		<% _(game.users).each( function(character, username){ %>
+			<li class="user"><%=character%> [<%=username%>]</li>
+		<% }); %>
+		</ul>
+	</div>
+
+   <br/>
+
+
+	<div class="gps_position">
+		<span class="gameinfo">GPS details:</span>
+		long: <span class="long"></span> <br />
+		lat: <span class="lat"></span> <br />
+		x: <span class="x"></span> <br />
+		y: <span class="y"></span> <br />
+		updated: <span class="updated"></span>
+	</div>
+
+   <div class="ghosts">
+      <img class="ghost blue"    src="/static/img/blue_ghost.png"/>
+      <img class="ghost orange"  src="/static/img/orange_ghost.png"/>
+      <img class="ghost red"     src="/static/img/red_ghost.png"/>
+      <img class="ghost pink"    src="/static/img/pink_ghost.png"/>
+      <img class="ghost-eatable blue"    src="/static/img/blue_ghost_eatable.png"/>
+      <img class="ghost-eatable orange"  src="/static/img/orange_ghost_eatable.png"/>
+      <img class="ghost-eatable red"     src="/static/img/red_ghost_eatable.png"/>
+      <img class="ghost-eatable pink"    src="/static/img/pink_ghost_eatable.png"/>
+      <img class="ghost-dead blue"    src="/static/img/blue_ghost_dead.png"/>
+      <img class="ghost-dead orange"  src="/static/img/orange_ghost_dead.png"/>
+      <img class="ghost-dead red"     src="/static/img/red_ghost_dead.png"/>
+      <img class="ghost-dead pink"    src="/static/img/pink_ghost_dead.png"/>
+   </div>
+
+	<script type="text/javascript" src="/static/js/engine.js"></script>
+	<script type="text/javascript" src="/static/js/game_state.js"></script>
+	<script type="text/javascript" src="/static/js/game_menu.js"></script>
+	<script type="text/javascript" src="/static/js/cheater.js"></script>
+	<script type="text/javascript" src="/static/js/geom.js"></script>
+	<script type="text/javascript" src="/static/js/coord_translator.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var map_json = <%- JSON.stringify( map ) %>,
+				 game_json = <%- JSON.stringify( game ) %>,
+				 game_state = new GameState( map_json, game_json, '<%= user.id %>'),
+			    engine = new Engine( game_state );
+
+			game_state.engine = engine;
+
+			game_state.init();
+			engine.init();
+
+			new Coord_Translator( game_state.bounds, engine.canvas );
+
+			new GameMenu(game_state).init_events();
+
+
+
+			function build_user_list() {
+				$('#users').empty();
+
+				_.each(game_state.users, function(character, username) {
+					$('#users').append($('<li class="user">' + character + ' [' + username + ']</li>'));
+				 });
+			}
+
+         function update_score() {
+            var score = '' + game_state.score;
+
+            while (score.length < 6) {
+               score = '0' + score;
+            }
+         
+            $('#score').text(score);
+         }
+         update_score();
+
+
+
+			var channel_url = window.location.protocol + '//' + window.location.host + '/' + game_state.id,
+				 game_channel = io.connect(channel_url);
+
+			game_channel.on('move', function(data) {
+				console.log('Something moved', data);
+
+				game_state.characters[data.character].prev_location = game_state.characters[data.character].location;
+            game_state.characters[data.character].location = data.location;
+				engine.render_frame();
+			});
+
+			game_channel.on('leave', function (user_data) {
+            console.log('leave', user_data);
+            delete game_state.characters[user_data.character];
+            delete game_state.users[user_data.username];
+            engine.render_frame();
+            build_user_list();
+			});
+
+			game_channel.on('join', function (user_data) {
+            console.log('join', user_data);
+            game_state.users[user_data.username] = user_data.character;
+            game_state.characters[user_data.character] = {
+            	username: user_data.username,
+            	location: _.clone(game_state.map.ghost_home)
+            };
+            engine.render_frame();
+            build_user_list();
+			});
+
+			game_channel.on('game_over', function (user_data) {
+				alert( "this game is over" );
+				window.location = window.location.protocol + '//' + window.location.host + '/';
+			});
+
+			game_channel.on('pacman_wins', function (user_data) {
+				alert( "pacman has won the game!" );
+				window.location = window.location.protocol + '//' + window.location.host + '/';
+			});
+
+			game_channel.on('pill_eaten', function (data) {
+				game_state.pills = _.filter(game_state.pills, function(pill) { return pill.id !== data.id });
+				engine.render_frame();
+			});
+
+			game_channel.on('powerpill_eaten', function (data) {
+				game_state.powerpills = _.filter(game_state.powerpills, function(pill) { return pill.id !== data.id });
+				engine.render_frame();
+			});
+
+         game_channel.on('ghost_died', function (data) {
+            game_state.characters[data.id].dead = true;
+            engine.render_frame();
+         });
+
+         game_channel.on('ghost_alive', function (data) {
+            game_state.characters[data.id].dead = false;
+            engine.render_frame();
+         });
+
+         game_channel.on('score_changed', function(data) {
+            game_state.score = data.score;
+            update_score();
+         });
+
+         game_channel.on('mode_changed', function(data) {
+            game_state.mode = data.mode;
+            console.log('changed game mode to ' + data.mode);
+            $('#mode').text(data.mode);
+            engine.render_frame();
+         });
+
+
+
+
+
+
+         function update_position(position) {
+				console.log( 'You moved. Sending', JSON.stringify( position ), 'to the server' );
+            game_channel.emit('move', { username: game_state.user_id, coords: position.coords });
+
+            $('.gps_position .long').text(position.coords.longitude);
+            $('.gps_position .lat').text(position.coords.latitude);
+            var xy = coords.long_lat_to_x_y({long:position.coords.longitude, lat:position.coords.latitude});
+
+            $('.gps_position .x').text(xy.x.toPrecision(3));
+            $('.gps_position .y').text(xy.y.toPrecision(3));
+
+            $('.gps_position .updated').text(new Date().toString());
+         }
+
+			new Cheater(engine, update_position);
+
+         <% if (production) { %>
+            if (window.navigator.geolocation) {
+               window.navigator.geolocation.watchPosition(
+               update_position,
+               function error( positionError ){
+                  alert( positionError.message, positionError.code );
+               },
+               { enableHighAccuracy: true, maximumAge: 0 });
+            }
+         <% } %>
+
+         engine.render_map();
+         engine.render_frame();
+
+
+		});
+	</script>
+
+</div>

@@ -1,0 +1,25 @@
+<h3>GLOBAL PACMAN SYSTEM</h3>
+<div class="game">
+	<ul class="menu">
+		<li><a href="/create_game">create a new game</a></li>
+      <li><a href="/help">help</a></li>
+		<li><a href="/logout">logout</a></li>
+	</ul>
+
+	<% if( games.length == 0) { %>
+		<strong class="nogames">There are no games on this server at the moment</strong>
+	<% }else { %>
+
+		<strong>Games on this server are:</strong>
+
+		<ul class='list' id='games'>
+			<% _(games).each(function( game ){ %>
+            
+					<li class='game'>
+						<a href="/game/<%=game.id%>/"><%=game.map_id%>&nbsp;:&nbsp;<%=game.created_by%>&nbsp;:&nbsp;<%= new Date(game.timestamp).toUTCString() %></a>
+					</li>
+			<% }); %>
+		</ul>
+
+	<%}%>
+</div>
