@@ -46,6 +46,12 @@ app.get('/', function(req, res){
    });
 });
 
+app.get('/help', function(req, res){
+	var user = req.user;
+
+	res.render("help");
+});
+
 app.get('/create_game', function(req, res){
 	Map.list(function(err, maps) {
 		if (!err) {
@@ -184,7 +190,7 @@ app.post('/api/map/:id/remove', function(req, res, next) {
 });
 
 // Jim: moved this to after the app.get()s because it was taking over from ejs with index etc
-app.use('/static', express.static(__dirname + '/public'));
+app.use('/static', express.static(__dirname + '/public', { maxAge: 86400000 }));
 
 auth.helpExpress(app);
 
