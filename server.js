@@ -1,4 +1,3 @@
-require('nko')('4fMSl3QQCdJNQRX2');
 
 var express = require('express'),
     Game = require('./lib/game.js'),
