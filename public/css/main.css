@@ -148,17 +148,6 @@ select {
    width: 100%;
 }
 
-iframe {
-   margin-top: 20px;
-   position: absolute;
-   left: 20px;
-   right: 20px;
-}
-
-.contact {
-	margin-top: 20px;
-}
-
 .maps li {
    margin-bottom: 5px;
 }
