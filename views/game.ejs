@@ -40,6 +40,7 @@
 		<span class="gameinfo">GPS details:</span>
 		long: <span class="long"></span> <br />
 		lat: <span class="lat"></span> <br />
+      heading: <span class="heading"></span</br>
 		x: <span class="x"></span> <br />
 		y: <span class="y"></span> <br />
 		updated: <span class="updated"></span>
@@ -189,6 +190,7 @@
 
             $('.gps_position .long').text(position.coords.longitude);
             $('.gps_position .lat').text(position.coords.latitude);
+            $('.gps_position .heading').text(position.coords.heading);
             var xy = coords.long_lat_to_x_y({long:position.coords.longitude, lat:position.coords.latitude});
 
             $('.gps_position .x').text(xy.x.toPrecision(3));
@@ -199,7 +201,6 @@
 
 			new Cheater(engine, update_position);
 
-         <% if (production) { %>
             if (window.navigator.geolocation) {
                window.navigator.geolocation.watchPosition(
                update_position,
@@ -208,7 +209,6 @@
                },
                { enableHighAccuracy: true, maximumAge: 0 });
             }
-         <% } %>
 
          engine.render_map();
          engine.render_frame();
