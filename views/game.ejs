@@ -73,7 +73,8 @@
 			var map_json = <%- JSON.stringify( map ) %>,
 				 game_json = <%- JSON.stringify( game ) %>,
 				 game_state = new GameState( map_json, game_json, '<%= user.id %>'),
-			    engine = new Engine( game_state );
+			    engine = new Engine( game_state ),
+             watcher;
 
 			game_state.engine = engine;
 
@@ -138,6 +139,7 @@
 			});
 
 			game_channel.on('game_over', function (user_data) {
+            if (watcher) { window.navigator.geolocation.clearWatch(watcher); }
 				alert( "this game is over" );
 				window.location = window.location.protocol + '//' + window.location.host + '/';
 			});
@@ -202,7 +204,7 @@
 			new Cheater(engine, update_position);
 
             if (window.navigator.geolocation) {
-               window.navigator.geolocation.watchPosition(
+               watcher = window.navigator.geolocation.watchPosition(
                update_position,
                function error( positionError ){
                   alert( positionError.message, positionError.code );
