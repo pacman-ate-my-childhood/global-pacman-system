@@ -113,7 +113,6 @@ app.get('/game/:id/', function(req, res, next) {
 
 app.post('/api/game/create', function(req, res, next) {
    var params = {
-		id : base64.encode('' + Date.now()),
       map_id: req.body.map_id,
       created_by: req.user.id,
 		characters:{},
@@ -124,7 +123,7 @@ app.post('/api/game/create', function(req, res, next) {
       timestamp: Date.now()
    };
 
-   Game.create(params, function(err, game) {
+   Game.create(base64.encode('' + Date.now()), params, function(err, game) {
       res.end(JSON.stringify({error: err, game: game})); 
    });
 });
@@ -167,7 +166,7 @@ app.post('/api/game/:id/remove', function(req, res, next) {
 
 app.post('/api/map/create', function(req, res, next) {
    req.body.id = req.body.id.replace(/\s+/g, '+');
-   Map.create(req.body, function(err, map) {
+   Map.create(req.body.id, req.body, function(err, map) {
       res.end(JSON.stringify({error:err, map:map}));
    });
 });
