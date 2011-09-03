@@ -154,8 +154,10 @@ Engine.prototype._render_pills = function() {
 	ctx.fillStyle = PILL_COLOR;
 
 	var character_name = this.game_state.users[ this.game_state.user_id ],
-		 character = this.game_state.characters[character_name],
+       character = this.game_state.characters[character_name],
 		 character_location = character.location;
+   
+   console.log('current player [' + character_name + '] at lng:' + character_location.long + ' lat:' + character_location.lat);
 
 	function render_list_of_pills( pills, is_power_pill ) {
 		var SIZE = is_power_pill? POWER_PILL_SIZE_PX : PILL_SIZE_PX;
@@ -210,7 +212,7 @@ Engine.prototype._render_characters = function() {
 	var ctx = this.canvas.eles.char.getContext('2d');
 
 	var character_name = this.game_state.users[ this.game_state.user_id ],
-		 character = this.game_state.characters[character_name],
+       character = this.game_state.characters[character_name],
 		 character_location = character.location;
 
 	_(this.game_state.characters).each(function(character, name){
@@ -221,7 +223,7 @@ Engine.prototype._render_characters = function() {
 		var renderer = ( name == 'pacman' )? this._render_pacman : this._render_ghost;
 
 		// ghosts only see pacman when he is nearby:
-		if( character != 'pacman' && name == 'pacman' ) {
+		if( character_name != 'pacman' && name == 'pacman' ) {
 			var pacman_location = this.game_state.characters.pacman.location;
 
 			var distance = lineLength(pacman_location.lat, pacman_location.long, character_location.lat, character_location.long );

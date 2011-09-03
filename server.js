@@ -85,7 +85,7 @@ app.get('/create_map', function(req, res){
 app.get('/game/:id/', function(req, res, next) {
    if (!req.params.id) next()
 
-   Game.join(req.params.id, req.user.id, function(err, game) {
+   Game.join(req.params.id, req.user, function(err, game) {
 
 		if( err ){ res.render('error', {error:err}); return;}
 
@@ -141,14 +141,14 @@ app.get('/api/game/:id/', function(req, res, next) {
 });
 
 app.post('/api/game/:id/join', function(req, res, next) {
-   Game.join(req.params.id, req.user.id, function(err, game) {
+   Game.join(req.params.id, req.user, function(err, game) {
       res.end(JSON.stringify({error:err, game:game}));
    });
 });
 
 app.post('/api/game/:id/leave', function(req, res, next) {
    console.log('user ' + req.user.id + ' leaving game ' + req.params.id);
-   Game.leave(req.params.id, req.user.id, function(err) {
+   Game.leave(req.params.id, req.user, function(err) {
       res.end(JSON.stringify({error:err}));
    });
 });

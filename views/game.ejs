@@ -111,11 +111,18 @@
 			var channel_url = window.location.protocol + '//' + window.location.host + '/' + game_state.id,
 				 game_channel = io.connect(channel_url);
 
-			game_channel.on('move', function(data) {
-				console.log('Something moved', data);
+         console.log('connected to game channel');
+         console.log(io);
 
-				game_state.characters[data.character].prev_location = game_state.characters[data.character].location;
-            game_state.characters[data.character].location = data.location;
+         game_channel.on('join', function() { console.log('we recieved a join message'); });
+
+			game_channel.on('move', function(data) {
+            var character = game_state.characters[data.character];
+				character.prev_location = character.location;
+            character.location = data.location;
+
+            console.log('player [' + character.name + '] at lng:' + character.location.long + ' lat:' + character.location.lat);
+
 				engine.render_frame();
 			});
 
@@ -128,12 +135,16 @@
 			});
 
 			game_channel.on('join', function (user_data) {
-            console.log('join', user_data);
-            game_state.users[user_data.username] = user_data.character;
-            game_state.characters[user_data.character] = {
+            game_state.characters[user_data.character] = { 
             	username: user_data.username,
-            	location: _.clone(game_state.map.ghost_home)
+            	location: _.clone(game_state.map.ghost_home),
+               name: user_data.character
             };
+            game_state.users[user_data.username] = user_data.character;
+
+            console.log('join', user_data);
+            debugger;
+
             engine.render_frame();
             build_user_list();
 			});
