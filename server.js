@@ -31,14 +31,14 @@ app.get(/^\/(?!static)/, function(req, res, next) {
  * Menu-type screens:
  */
 app.get('/', function(req, res){
-	Game.list(function(err, games) {
+	Map.list(function(err, maps) {
 
 		var user = req.user;
 
 		if (!err) {
 			res.render("index", {
 				user: req.user
-			,	games: games
+			,	maps: maps
 			,	_:_
 			});
 		}
@@ -47,35 +47,11 @@ app.get('/', function(req, res){
 });
 
 app.get('/help', function(req, res){
-	var user = req.user;
-
 	res.render("help");
 });
 
-app.get('/create_game', function(req, res){
-	Map.list(function(err, maps) {
-      console.log(maps);
-		if (!err) {
-      	res.render("create_game", {
-				maps: maps
-			,	_:_
-			});
-		}
-		else res.render('error');
-   });
-});
 app.get('/create_map', function(req, res){
-
-	Map.list(function(err, maps) {
-		if (!err) {
-      	res.render("create_map", {
-				maps:maps
-			,	_:_
-			});
-		}
-		else res.render('error');
-	});
-
+   res.render("create_map");
 });
 
 

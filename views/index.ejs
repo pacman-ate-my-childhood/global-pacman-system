@@ -1,25 +1,52 @@
+
 <h3>GLOBAL PACMAN SYSTEM</h3>
-<div class="game">
-	<ul class="menu">
-		<li><a href="/create_game">create a new game</a></li>
-      <li><a href="/help">help</a></li>
-		<li><a href="/logout">logout</a></li>
-	</ul>
 
-	<% if( games.length == 0) { %>
-		<strong class="nogames">There are no games on this server at the moment</strong>
-	<% }else { %>
+<ul class="menu maps">
+	<li><a href="/create_map">create a new map</a></li>
+   <li><a href="/help">help</a></li>
+	<li>Start game on map:</li>
+   <% _(maps).each(function(map) { %>
+      <li>
+         <a href="#" class="map" data-map="<%=map.id%>" data-long="<%=map.centre.long%>" data-lat="<%=map.centre.lat%>"><%=map.id%></a>
+      </li>
+   <% }); %>
+</ul>
 
-		<strong>Games on this server are:</strong>
+<script type="text/javascript">
 
-		<ul class='list' id='games'>
-			<% _(games).each(function( game ){ %>
-            
-					<li class='game'>
-						<a href="/game/<%=game.id%>/"><%=game.map_id%>&nbsp;:&nbsp;<%=game.created_by%>&nbsp;:&nbsp;<%= new Date(game.timestamp).toUTCString() %></a>
-					</li>
-			<% }); %>
-		</ul>
+$(function() {
 
-	<%}%>
-</div>
+	$('.map').bind('click', function(evt) {
+		$.ajax('/api/game/create', {
+			type: 'POST',
+			data: { map_id: $(this).data('map') },
+			dataType: 'json',
+			success: function(data) {
+				if (!data.error) { window.location = window.location.protocol + '//' + window.location.host + '/game/' + data.game.id + '/'; }
+				else { alert('error creating game'); console.log(data.error); }
+			}
+		});
+	});
+
+   var geocoder = new google.maps.Geocoder();
+
+   $('.map').each(function() {
+      var elem = $(this),
+          long = elem.data('long'),
+          lat = elem.data('lat');
+
+      geocoder.geocode({ latLng: new google.maps.LatLng(lat, long) }, function(result, status) {
+
+         var location = _.reduce(result[0].address_components, function(s, c) { 
+            if (_.any(c.types, function(type, num, types) { return ['administrative_area_level_1', 'administrative_area_level_2', 'country'].indexOf(type) >= 0; })) s.push(c.long_name);
+            return s; 
+         }, [ ]).join(', ');
+
+         elem.append('<div>' + location + '</div>');
+      });
+   });
+
+});
+      
+
+</script>
