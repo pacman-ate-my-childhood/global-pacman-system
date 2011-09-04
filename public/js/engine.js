@@ -153,7 +153,7 @@ Engine.prototype._render_pills = function() {
 	var ctx = this.canvas.eles.char.getContext('2d');
 	ctx.fillStyle = PILL_COLOR;
 
-	var character_name = this.game_state.users[ this.game_state.user_id ],
+	var character_name = this.game_state.users[ this.game_state.user_id ].character,
        character = this.game_state.characters[character_name],
 		 character_location = character.location;
    
@@ -211,7 +211,7 @@ Engine.prototype._render_characters = function() {
 
 	var ctx = this.canvas.eles.char.getContext('2d');
 
-	var character_name = this.game_state.users[ this.game_state.user_id ],
+	var character_name = this.game_state.users[ this.game_state.user_id ].character,
        character = this.game_state.characters[character_name],
 		 character_location = character.location;
 

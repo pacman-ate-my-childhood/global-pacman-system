@@ -5,7 +5,6 @@ function GameState( map_json, game_json, user_id ){
 
 	this.id = game_json.id;
 	this.map_id = game_json.map_id;
-	this.created_by = game_json.created_by;
 	this.pills = game_json.pills;
 	this.powerpills = game_json.powerpills;
 
@@ -15,6 +14,7 @@ function GameState( map_json, game_json, user_id ){
 	// put pacman at the start:
 	this.users = game_json.users;
 	this.characters = game_json.characters;
+   this.avaliable_characters = game_json.avaliable_characters;
 }
 
 

@@ -15,6 +15,7 @@ body {
 
 #container {
    width: 320px;
+   position: relative;
    overflow:hidden;
 }
 
@@ -150,4 +151,17 @@ select {
 
 .maps li {
    margin-bottom: 5px;
+}
+
+.modal {
+   position:absolute;
+   top:0;
+   left:0;
+   right:0;
+   bottom:0;
+   background-color:black;
+}
+
+.hidden { 
+   display:none;
 }

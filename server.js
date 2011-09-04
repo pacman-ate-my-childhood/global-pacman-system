@@ -13,18 +13,8 @@ Channel.listen(app);
 app.use(express.bodyParser()); // for parsing incoming json + www-encoded-forms into req.body
 app.use(express.cookieParser()); // supports sessions
 app.use(express.session({ secret: 'pacman' }));
-
-var auth = require('./lib/auth.js');
-
-app.use(auth.middleware());
 app.use(express.favicon());
 app.set('view engine', 'ejs');
-
-
-app.get(/^\/(?!static)/, function(req, res, next) {
-   if (req.loggedIn) next();
-   else res.redirect('/login');
-});
 
 
 /*
@@ -32,13 +22,9 @@ app.get(/^\/(?!static)/, function(req, res, next) {
  */
 app.get('/', function(req, res){
 	Map.list(function(err, maps) {
-
-		var user = req.user;
-
 		if (!err) {
 			res.render("index", {
-				user: req.user
-			,	maps: maps
+            maps: maps
 			,	_:_
 			});
 		}
@@ -50,7 +36,7 @@ app.get('/help', function(req, res){
 	res.render("help");
 });
 
-app.get('/create_map', function(req, res){
+app.get('/map/create', function(req, res){
    res.render("create_map");
 });
 
@@ -61,7 +47,7 @@ app.get('/create_map', function(req, res){
 app.get('/game/:id/', function(req, res, next) {
    if (!req.params.id) next()
 
-   Game.join(req.params.id, req.user, function(err, game) {
+   Game.get(req.params.id, function(err, game) {
 
 		if( err ){ res.render('error', {error:err}); return;}
 
@@ -90,7 +76,7 @@ app.get('/game/:id/', function(req, res, next) {
 app.post('/api/game/create', function(req, res, next) {
    var params = {
       map_id: req.body.map_id,
-      created_by: req.user.id,
+      avaliable_characters:[],
 		characters:{},
 		users:{},
 		open:true,
@@ -113,19 +99,6 @@ app.get('/api/game/list', function(req, res, next) {
 app.get('/api/game/:id/', function(req, res, next) {
    Game.get(req.params.id, function(err, game) {
       res.end(JSON.stringify({error:err, game:game}));
-   });
-});
-
-app.post('/api/game/:id/join', function(req, res, next) {
-   Game.join(req.params.id, req.user, function(err, game) {
-      res.end(JSON.stringify({error:err, game:game}));
-   });
-});
-
-app.post('/api/game/:id/leave', function(req, res, next) {
-   console.log('user ' + req.user.id + ' leaving game ' + req.params.id);
-   Game.leave(req.params.id, req.user, function(err) {
-      res.end(JSON.stringify({error:err}));
    });
 });
 
@@ -167,9 +140,6 @@ app.post('/api/map/:id/remove', function(req, res, next) {
 
 // Jim: moved this to after the app.get()s because it was taking over from ejs with index etc
 app.use('/static', express.static(__dirname + '/public', { maxAge: 0 }));
-
-auth.helpExpress(app);
-
 
 console.log('started server');
 
