@@ -20,23 +20,31 @@ Map_View.prototype.render_lines = function(map_state) {
 Map_View.prototype.trace_lines = function( map_state, is_outline ) {
 
 	var nodes = map_state.vertices;
+	var visited_nodes = {};
 	var ctx = this.ctx;
+	var thickness = is_outline
+								? coords.long_lat_distance_to_px(0.0004)
+								: coords.long_lat_distance_to_px(0.00025)
+								;
 
 	function draw_line(node1, node2) {
-
 		var xy1 = coords.long_lat_to_x_y(node1),
 			 xy2 = coords.long_lat_to_x_y(node2);
 
 		ctx.moveTo(xy1.x, xy1.y);
 		ctx.lineTo(xy2.x, xy2.y);
+	}
 
+	function draw_unconnected_vertex( vertex ) {
+		var xy = coords.long_lat_to_x_y(vertex);
+
+		ctx.beginPath();
+		ctx.arc(xy.x,xy.y, thickness, 2*Math.PI, 0, true);
+		ctx.fill();
 	}
 
 	ctx.strokeStyle = is_outline? WALL_OUTLINE_COLOUR : "black";
-	ctx.lineWidth = is_outline
-								? coords.long_lat_distance_to_px(0.0004)
-								: coords.long_lat_distance_to_px(0.00025)
-								;
+	ctx.lineWidth = thickness;
 	ctx.lineCap = "round";
 
 	ctx.beginPath();
@@ -45,9 +53,22 @@ Map_View.prototype.trace_lines = function( map_state, is_outline ) {
 		var node1 = nodes[ edge.a ],
 			 node2 = nodes[ edge.b ];
 
+		visited_nodes[edge.a] = true;
+		visited_nodes[edge.b] = true;
+
 		draw_line(node1, node2);
 	});
 	ctx.stroke();
+
+	// get unvisited nodes:
+	var unvisited = _(nodes).filter( function( node, index ){
+		return !visited_nodes[index];
+	});
+
+	if( unvisited.length > 0 ) {
+		ctx.fillStyle = is_outline? WALL_OUTLINE_COLOUR : "black";
+		_(unvisited).each( draw_unconnected_vertex );
+	}
 };
 
 Map_View.prototype.render_ghost_home = function ( map_state ){

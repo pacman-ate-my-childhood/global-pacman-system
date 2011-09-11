@@ -48,7 +48,6 @@
 		// now we are added, start listening to the bounds of the map changing:
 		var self = this;
 		GoogleMaps.event.addListener(this.google_map, "bounds_changed", function(){
-			console.log("bc happened");
 			self.draw();
 		});
 	};
@@ -56,8 +55,6 @@
 	/* draw is called sometimes by GM api but mostly by us in response to bounds change
 	 	events on the main Map object */
 	PacmanMapOverlay.prototype.draw = function() {
-
-		console.log( "draw" );
 
 	  // Size and position the overlay. We use a southwest and northeast
 	  // position of the overlay to peg it to the correct position and size.
@@ -85,8 +82,6 @@
 		this.jCanvasWrap.find('canvas').attr({width:width, height:height});
 
 		this.map_view.render_map( this.get_map_state() );
-
-		console.log( "set style to", this.jCanvasWrap[0].style.cssText );
 	};
 
 	window.PacmanMapOverlay = PacmanMapOverlay;
