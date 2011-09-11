@@ -28,7 +28,7 @@ Map_View.prototype.render_map = function( map_state ) {
 
 		ctx.strokeStyle = is_outline? WALL_COLOUR : "black";
 		ctx.lineWidth = is_outline
-									? coords.long_lat_distance_to_px(0.0003)
+									? coords.long_lat_distance_to_px(0.0004)
 									: coords.long_lat_distance_to_px(0.00025)
 									;
 		ctx.lineCap = "round";
