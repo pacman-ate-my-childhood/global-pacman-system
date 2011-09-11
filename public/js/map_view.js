@@ -12,6 +12,7 @@ function Map_View( jCanvas, editor_mode ) {
 Map_View.prototype.render_map = function( map_state ) {
 	this.render_lines( map_state );
 	this.render_ghost_home(map_state);
+	this.render_pacman_home(map_state);
 };
 
 Map_View.prototype.render_lines = function(map_state) {
@@ -72,6 +73,19 @@ Map_View.prototype.trace_lines = function( map_state, is_outline ) {
 		_(unvisited).each( draw_unconnected_vertex );
 	}
 };
+
+Map_View.prototype.render_pacman_home = function ( map_state ){
+	var pacman_home = map_state.pacman_home;
+
+	if( !pacman_home ){
+		return;
+	}
+	if( !this.editor_mode ){
+		return;
+	}
+
+	Engine.render_pacman('', coords.long_lat_to_x_y( pacman_home ), null, this.ctx);
+}
 
 Map_View.prototype.render_ghost_home = function ( map_state ){
 
