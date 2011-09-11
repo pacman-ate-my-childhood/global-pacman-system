@@ -86,6 +86,8 @@
 
 			new Coord_Translator( game_state.bounds, engine.canvas );
 
+
+
 			function build_user_list() {
 				$('#users').empty();
 
@@ -95,7 +97,7 @@
 			}
 
          function update_score() {
-            var score = '' + game_state.score;
+            var score = '' + game_state.users[my_id].score;
 
             while (score.length < 6) {
                score = '0' + score;
@@ -103,7 +105,6 @@
          
             $('#score').text(score);
          }
-         update_score();
 
 
 
@@ -151,7 +152,8 @@
             game_state.users[user_id] = { 
                user_id: user_id,
                nickname: nickname,
-               character: name
+               character: name,
+               score: 0
             };
 
             /*
@@ -187,6 +189,8 @@
                   },
                   { enableHighAccuracy: true, maximumAge: 0 });
                }
+
+               update_score();
             }
 
             engine.render_frame();
@@ -224,8 +228,8 @@
             engine.render_frame();
          });
 
-         game_channel.on('score_changed', function(score) {
-            game_state.score = score;
+         game_channel.on('score_changed', function(user_id, score) {
+            game_state.users[user_id].score = score;
             update_score();
          });
 
