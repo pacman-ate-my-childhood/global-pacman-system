@@ -12,7 +12,6 @@ var 	PACMAN_COLOR = "#ffff57",
 	 	FOG_OF_WAR_RADIUS = 0.0006;
 
 function Engine( game_state ){
-
 	this.game_state = game_state;
 
 	var self = this;
@@ -174,7 +173,7 @@ Engine.prototype._render_characters = function() {
 		var xy = coords.long_lat_to_x_y( character.location ),
 			 prev_xy = character.prev_location ? coords.long_lat_to_x_y( character.prev_location ): null;
 
-		var renderer = ( name == 'pacman' )? this._render_pacman : this._render_ghost;
+		var renderer = ( name == 'pacman' )? Engine.render_pacman : this.render_ghost;
 
 		// ghosts only see pacman when he is nearby:
 		if( character_name != 'pacman' && name == 'pacman' ) {
@@ -191,7 +190,7 @@ Engine.prototype._render_characters = function() {
 	}, this);
 };
 
-Engine.prototype._render_pacman = function(name, xy, prev_xy, ctx) {
+Engine.render_pacman = function(name, xy, prev_xy, ctx) {
 	var mouth_open_angle = 0.5,
 		 angle;
 
@@ -220,7 +219,7 @@ Engine.prototype._render_pacman = function(name, xy, prev_xy, ctx) {
 	ctx.restore();
 };
 
-Engine.prototype._render_ghost = function(name, xy, prev_xy, ctx) {
+Engine.prototype.render_ghost = function(name, xy, prev_xy, ctx) {
    var ghost = this.game_state.characters[name],
        img;
 

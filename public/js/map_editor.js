@@ -156,7 +156,7 @@
 
 		$('#create').bind('click', function(evt) {
 
-			var map_state = this.get_map_data();
+			var map_state = self.get_map_data();
 
 
 			if (!map_state.pacman_home) { alert('Please enter a vertex id to use as pacmans home'); }

@@ -31,12 +31,10 @@
 
 		var jCanvas = jQuery("<canvas width='10' height='10'>"),
 			 canvas = jCanvas[0],
-			 jCanvasWrap = jCanvas.wrap('<div class="editorCanvasWrap" style="position:absolute" />').parent();
+			 jCanvasWrap = jCanvas.wrap('<div class="editorCanvasWrap" style="position:absolute; opacity:0.9" />').parent();
 		this.jCanvasWrap = jCanvasWrap;
 		this.map_view = new Map_View(jCanvas, true);
 
-		jCanvasWrap.css('position', 'absolute');
-		//jCanvasWrap.css('border', '1px black solid');
 
 		var panes = this.getPanes();
 		panes.overlayLayer.appendChild(jCanvasWrap[0]);
