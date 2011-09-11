@@ -1,4 +1,6 @@
 var WALL_OUTLINE_COLOUR = "#5757FF",
+	 WALL_THICKNESS = 0.0005,
+	 PATH_THICKNESS = 0.0003,
 	 GHOST_IMAGE_SIZE = 28,
 	 GHOST_IMAGE_SIZE_HALF = GHOST_IMAGE_SIZE/2;
 
@@ -23,8 +25,8 @@ Map_View.prototype.trace_lines = function( map_state, is_outline ) {
 	var visited_nodes = {};
 	var ctx = this.ctx;
 	var thickness = is_outline
-								? coords.long_lat_distance_to_px(0.0004)
-								: coords.long_lat_distance_to_px(0.00025)
+								? coords.long_lat_distance_to_px(WALL_THICKNESS)
+								: coords.long_lat_distance_to_px(PATH_THICKNESS)
 								;
 
 	function draw_line(node1, node2) {
@@ -39,7 +41,7 @@ Map_View.prototype.trace_lines = function( map_state, is_outline ) {
 		var xy = coords.long_lat_to_x_y(vertex);
 
 		ctx.beginPath();
-		ctx.arc(xy.x,xy.y, thickness, 2*Math.PI, 0, true);
+		ctx.arc(xy.x,xy.y, thickness/2, 2*Math.PI, 0, true);
 		ctx.fill();
 	}
 
