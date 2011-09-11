@@ -1,25 +1,21 @@
 
-var WALL_COLOUR = "#5757FF",
-	 PACMAN_COLOR = "#ffff57",
-	 PACMAN_SIZE = 28,
-	 PACMAN_SIZE_HALF = PACMAN_SIZE/2,
-	 PILL_COLOR = "#FFFFAB",
-	 POWER_PILL_SIZE_PX = 14,
-	 PILL_SIZE_PX = 4,
-	 POWER_PILL_SIZE_PX_HALF = POWER_PILL_SIZE_PX/2,
-	 PILL_SIZE_PX_HALF = PILL_SIZE_PX/2,
-	 TARGET_FRAME_RATE_MS = 30,
-	 GHOST_IMAGE_SIZE = 28,
-	 GHOST_IMAGE_SIZE_HALF = GHOST_IMAGE_SIZE/2,
-	FOG_OF_WAR_RADIUS = 0.0006;
-
+var 	PACMAN_COLOR = "#ffff57",
+		PACMAN_SIZE = 28,
+	 	PACMAN_SIZE_HALF = PACMAN_SIZE/2,
+	 	PILL_COLOR = "#FFFFAB",
+	 	POWER_PILL_SIZE_PX = 14,
+	 	PILL_SIZE_PX = 4,
+	 	POWER_PILL_SIZE_PX_HALF = POWER_PILL_SIZE_PX/2,
+	 	PILL_SIZE_PX_HALF = PILL_SIZE_PX/2,
+	 	GHOST_IMAGE_SIZE = 28,
+	 	GHOST_IMAGE_SIZE_HALF = GHOST_IMAGE_SIZE/2,
+	 	FOG_OF_WAR_RADIUS = 0.0006;
 
 function Engine( game_state ){
 
 	this.game_state = game_state;
 
 	var self = this;
-
 }
 
 Engine.prototype.canvas = {map:null, char:null};
@@ -37,7 +33,7 @@ Engine.prototype.init = function(){
 
 Engine.prototype.render_frame = function(){
 	// clear canvas
-	this.canvas.eles.char.getContext('2d').clearRect(0,0, this.canvas.width, this.canvas.height+1);
+	this.canvas.contexts.char.clearRect(0,0, this.canvas.width, this.canvas.height+1);
 
 	this._render_pills();
 	this._render_characters();
@@ -63,12 +59,19 @@ Engine.prototype._init_canvas = function() {
 	}
 
 	this.canvas = {
-		eles: {	map: $("#mapCanvas")[0],
-					char:$("#charCanvas")[0]
+		eles:
+		{	map: $("#mapCanvas")[0]
+		,	char:$("#charCanvas")[0]
+		},
+		contexts:
+		{	map: $("#mapCanvas")[0].getContext('2d')
+		,	char:$("#charCanvas")[0].getContext('2d')
 		},
 		width: jCanvases.width(),
-		height: jCanvases.height()
+		height: jCanvases.height(),
 	};
+
+	this.map_view = new Map_View( $('#mapCanvas') );
 };
 
 Engine.prototype._init_ghost_images = function() {
@@ -96,61 +99,12 @@ Engine.prototype._init_ghost_images = function() {
 };
 
 Engine.prototype.render_map = function() {
-
-	var self = this;
-	var nodes = this.game_state.map.vertices;
-	var ctx = this.canvas.eles.map.getContext('2d');
-
-	function render_lines( is_outline ) {
-
-		function draw_line(ctx, node1, node2) {
-
-			var xy1 = coords.long_lat_to_x_y(node1),
-				 xy2 = coords.long_lat_to_x_y(node2);
-
-			ctx.moveTo(xy1.x, xy1.y);
-			ctx.lineTo(xy2.x, xy2.y);
-
-		}
-
-		ctx.strokeStyle = is_outline? WALL_COLOUR : "black";
-		ctx.lineWidth = is_outline? 30 : 25;
-		ctx.lineCap = "round";
-
-		ctx.beginPath();
-		_(self.game_state.map.edges).each( function(edge){
-
-			var node1 = nodes[ edge.a ],
-				 node2 = nodes[ edge.b ];
-
-			draw_line(ctx, node1, node2);
-		});
-		ctx.stroke();
-	}
-
-	function render_ghost_home(){
-		var gh_location = coords.long_lat_to_x_y( self.game_state.map.ghost_home );
-
-		ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-		ctx.strokeStyle = "white";
-
-		ctx.beginPath();
-		ctx.arc(gh_location.x,gh_location.y, 30, 2*Math.PI, 0, true);
-		ctx.fill();
-		ctx.lineWidth = 1;
-		ctx.stroke();
-	}
-
-
-	render_lines( true );
-	render_lines( false );
-
-	render_ghost_home();
+	this.map_view.render_map(this.game_state.map);
 };
 
 Engine.prototype._render_pills = function() {
 	var self = this;
-	var ctx = this.canvas.eles.char.getContext('2d');
+	var ctx = this.canvas.contexts.char;
 	ctx.fillStyle = PILL_COLOR;
 
 	var character_name = this.game_state.users[ this.game_state.user_id ].character,
@@ -209,7 +163,7 @@ Engine.prototype._render_pills = function() {
 
 Engine.prototype._render_characters = function() {
 
-	var ctx = this.canvas.eles.char.getContext('2d');
+	var ctx = this.canvas.contexts.char;
 
 	var character_name = this.game_state.users[ this.game_state.user_id ].character,
        character = this.game_state.characters[character_name],

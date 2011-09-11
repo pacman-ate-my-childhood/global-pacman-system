@@ -63,6 +63,7 @@
 	<script type="text/javascript" src="/static/js/engine.js"></script>
 	<script type="text/javascript" src="/static/js/game_state.js"></script>
 	<script type="text/javascript" src="/static/js/game_menu.js"></script>
+	<script type="text/javascript" src="/static/js/map_view.js"></script>
 	<script type="text/javascript" src="/static/js/cheater.js"></script>
 	<script type="text/javascript" src="/static/js/geom.js"></script>
 	<script type="text/javascript" src="/static/js/coord_translator.js"></script>
@@ -84,8 +85,6 @@
 			engine.init();
 
 			new Coord_Translator( game_state.bounds, engine.canvas );
-
-
 
 			function build_user_list() {
 				$('#users').empty();

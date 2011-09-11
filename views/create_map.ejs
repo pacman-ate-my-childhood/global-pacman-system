@@ -1,12 +1,34 @@
 
+
+<script type="text/javascript" src="/static/js/map_view.js"></script>
+<script type="text/javascript" src="/static/js/coord_translator.js"></script>
+<script type="text/javascript" src="/static/js/pacman_map_overlay.js"></script>
 <script type="text/javascript" src="/static/js/map_editor.js" ></script>
+<script type="text/javascript">
+	$(function(){
+      new MapEditor();
+	});
+</script>
 
 <h3>GLOBAL PACMAN SYSTEM</h3>
 
 <label for="name">Map name:</label>
 <input type="text" name="name" id="name" /> 
 
-<div id="map" style="width: 100%; height: 400px;"></div>
+<div id="map" style="width: 100%; height: 350px;"></div>
+
+<br/>
+
+<label for="long">Long:</label>
+<input type="text" id="long" name="long" />
+
+<label for="lat">Lat:</label>
+<input type="text" id="lat" name="lat" />
+
+<a href="#" id="add">add vertex</a>
+
+<br/>
+<br/>
 
 <select id="vertices" multiple="multiple">
 </select>
@@ -15,21 +37,6 @@
 
 <a href="#" id="join">join vertices</a>
 <a href="#" id="remove_vertices">remove vertex/vertices</a>
-
-<br/>
-<br/>
-
-<label for="long">Long:</label>
-<input type="text" id="long" name="long" />
-
-<br/>
-
-<label for="lat">Lat:</label>
-<input type="text" id="lat" name="lat" />
-
-<br/>
-
-<a href="#" id="add">add vertex</a>
 
 <br/>
 <br/>
