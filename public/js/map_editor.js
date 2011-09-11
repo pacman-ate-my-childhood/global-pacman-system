@@ -50,12 +50,19 @@
 
 /* returns the map data in a form that the renderer and/or db would understand it */
 	MapEditor.prototype.get_map_data = function() {
+
+		var pacman_home_id = $('#pacman_home').val(),
+			 ghost_home_id = $('#ghost_home').val();
+
+		var pacman_home = this.map_state.vertices[(pacman_home_id === '') ? null : +pacman_home_id],
+			 ghost_home = this.map_state.vertices[(ghost_home_id === '') ? null : +ghost_home_id];
+
 		return {
 			id: $('#name').val(),
 			vertices: this.map_state.vertices,
 			edges: this.map_state.edges,
-			pacman_home: this.map_state.pacman_home,
-			ghost_home: this.map_state.ghost_home
+			pacman_home: pacman_home,
+			ghost_home: ghost_home
 		}
 	};
 
@@ -140,22 +147,25 @@
 			evt.preventDefault();
 		});
 
+		$('#ghost_home').bind('click', function(evt) {
+			self.overlay.draw();
+		});
+		$('#ghost_home').bind('change', function(evt) {
+			self.overlay.draw();
+		});
 
 		$('#create').bind('click', function(evt) {
 
-			var pacman_home_id = $('#pacman_home').val(),
-				 ghost_home_id = $('#ghost_home').val();
+			var map_state = this.get_map_data();
 
-			var pacman_home = self.map_state.vertices[(pacman_home_id === '') ? null : +pacman_home_id],
-				 ghost_home = self.map_state.vertices[(ghost_home_id === '') ? null : +ghost_home_id];
 
-			if (!pacman_home) { alert('Please enter a vertex id to use as pacmans home'); }
-			else if (!ghost_home) { alert('Please enter a vertex id to use as the ghosts home'); }
+			if (!map_state.pacman_home) { alert('Please enter a vertex id to use as pacmans home'); }
+			else if (!map_state.ghost_home) { alert('Please enter a vertex id to use as the ghosts home'); }
 			else {
 				$.ajax('/api/map/create', {
 					type: 'POST',
 					dataType: 'json',
-					data: self.get_map_data(),
+					data: map_state,
 					success: function(data) {
 						if (!data.error) {
 							window.location = window.location.protocol + '//' + window.location.host + '/create_game';

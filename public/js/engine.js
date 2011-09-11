@@ -227,7 +227,5 @@ Engine.prototype._render_ghost = function(name, xy, prev_xy, ctx) {
    if (ghost.dead) { img = this.ghost_images.dead[name]; }
    else { img = this.ghost_images.alive[this.game_state.mode][name]; }
 
-   console.log('trying to render ghost ', img, img && img.src, xy);
-
 	ctx.drawImage(img, xy.x - GHOST_IMAGE_SIZE_HALF, xy.y - GHOST_IMAGE_SIZE_HALF);
 }

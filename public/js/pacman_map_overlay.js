@@ -33,7 +33,7 @@
 			 canvas = jCanvas[0],
 			 jCanvasWrap = jCanvas.wrap('<div class="editorCanvasWrap" style="position:absolute" />').parent();
 		this.jCanvasWrap = jCanvasWrap;
-		this.map_view = new Map_View(jCanvas);
+		this.map_view = new Map_View(jCanvas, true);
 
 		jCanvasWrap.css('position', 'absolute');
 		//jCanvasWrap.css('border', '1px black solid');
