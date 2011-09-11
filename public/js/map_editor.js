@@ -168,7 +168,7 @@
 					data: map_state,
 					success: function(data) {
 						if (!data.error) {
-							window.location = window.location.protocol + '//' + window.location.host + '/create_game';
+							window.location = window.location.protocol + '//' + window.location.host + '/';
 						}
 						else {
 							alert('error creating map'); console.log(data.error);
