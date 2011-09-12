@@ -11,15 +11,19 @@
 	}
 
 	MapEditor.prototype.map_state = null;
+	MapEditor.prototype.google_map = null;
 	MapEditor.prototype.overlay = null;
 
 	MapEditor.prototype.create_google_map = function() {
-		var 	jMap = $('#map'),
+		var 		self = this,
+					jMap = $('#map'),
 					latlng = new GoogleMaps.LatLng(51.504469, -0.136986),
 					map = new GoogleMaps.Map(document.getElementById('map'), { zoom: 8, center: latlng, mapTypeId: GoogleMaps.MapTypeId.ROADMAP }),
 					// crate a new canvas the same size as the map and insert it using an ELabel:
 					w = jMap.width(),
 					h = jMap.height();
+
+		this.google_map = map;
 
 		var swBound = new google.maps.LatLng(51.491645, -0.149689);
 		var neBound = new google.maps.LatLng(51.513871, -0.104370);
@@ -27,11 +31,32 @@
 
 		this.overlay = new PacmanMapOverlay(map, _.bind(this.get_map_data, this));
 
-		GoogleMaps.event.addListener(map, 'click', function(event) {
-				new GoogleMaps.Marker({ position: event.latLng, map: map });
-				$('#lat').val(event.latLng.lat());
-				$('#long').val(event.latLng.lng());
-			});
+		GoogleMaps.event.addListener(map, 'click', _.bind( this.handleClickOnMap, this ));
+	};
+
+	MapEditor.prototype.handleClickOnMap = function( event ) {
+		var   vertex = {lat: + event.latLng.lat(), 'long': + event.latLng.lng()},
+				marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
+
+		marker.pacman = {map_vertex: vertex};
+
+		this.map_state.vertices.push( vertex );
+		this.populate_lists();
+		this.overlay.draw();
+
+		GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
+	};
+
+	MapEditor.prototype.handleMarkerDragged = function( marker, event ) {
+
+		console.log(marker, event);
+
+		var vertex = marker.pacman.map_vertex;
+
+		vertex.long = event.latLng.lng();
+		vertex.lat = event.latLng.lat();
+
+		this.overlay.draw();
 	};
 
 	MapEditor.prototype.populate_lists = function() {
