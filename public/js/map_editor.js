@@ -10,8 +10,8 @@
 
       if (window.navigator.geolocation) {
          window.navigator.geolocation.getCurrentPosition(
-            this.create_google_map.bind(this),
-            this.create_google_map.bind(this, map_center)
+            _.bind(this.create_google_map, this),
+            _.bind(this.create_google_map, this, map_center)
          );
       } else {
          this.create_google_map(map_center);
@@ -30,7 +30,7 @@
 					jMap = $('#map'),
 					latlng = new GoogleMaps.LatLng(position.coords.latitude, position.coords.longitude),
 					map = new GoogleMaps.Map(document.getElementById('map'), { 
-                  zoom: (position.timestamp) ? 15 : 3, 
+                  zoom: (position && position.timestamp) ? 15 : 3, 
                   center: latlng, 
                   mapTypeId: GoogleMaps.MapTypeId.ROADMAP 
                }),
