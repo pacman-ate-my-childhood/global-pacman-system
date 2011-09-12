@@ -1,4 +1,3 @@
-
 var express = require('express'),
     Game = require('./lib/game.js'),
     Map = require('./lib/map.js');
@@ -102,13 +101,6 @@ app.get('/api/game/:id/', function(req, res, next) {
    });
 });
 
-app.post('/api/game/:id/remove', function(req, res, next) {
-   Game.remove(req.params.id, function(err) {
-      res.end(JSON.stringify({error:err}));
-   });
-});
-
-
 /*
  * Map API
  */
@@ -129,12 +121,6 @@ app.get('/api/map/list', function(req, res, next) {
 app.get('/api/map/:id/', function(req, res, next) {
    Map.get(req.params.id, function(err, map) {
       res.end(JSON.stringify({error:err, map:map}));
-   });
-});
-
-app.post('/api/map/:id/remove', function(req, res, next) {
-   Map.remove(req.params.id, function(err) {
-      res.end(JSON.stringify({error:err}));
    });
 });
 
