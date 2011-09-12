@@ -6,7 +6,17 @@
 			,	vertices:[]
 			};
 
-		this.create_google_map();
+      var map_center = { coords: { latitude: 51.504469, longitude: -0.136986 } };
+
+      if (window.navigator.geolocation) {
+         window.navigator.geolocation.getCurrentPosition(
+            this.create_google_map.bind(this),
+            this.create_google_map.bind(this, map_center)
+         );
+      } else {
+         this.create_google_map(map_center);
+      }
+
 		this.init_events();
 	}
 
@@ -15,11 +25,15 @@
 	MapEditor.prototype.overlay = null;
 	MapEditor.prototype._selected_marker = null;
 
-	MapEditor.prototype.create_google_map = function() {
+	MapEditor.prototype.create_google_map = function(position) {
 		var 		self = this,
 					jMap = $('#map'),
-					latlng = new GoogleMaps.LatLng(51.504469, -0.136986),
-					map = new GoogleMaps.Map(document.getElementById('map'), { zoom: 8, center: latlng, mapTypeId: GoogleMaps.MapTypeId.ROADMAP }),
+					latlng = new GoogleMaps.LatLng(position.coords.latitude, position.coords.longitude),
+					map = new GoogleMaps.Map(document.getElementById('map'), { 
+                  zoom: (position.timestamp) ? 15 : 3, 
+                  center: latlng, 
+                  mapTypeId: GoogleMaps.MapTypeId.ROADMAP 
+               }),
 					// crate a new canvas the same size as the map and insert it using an ELabel:
 					w = jMap.width(),
 					h = jMap.height();
