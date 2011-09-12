@@ -13,6 +13,7 @@
 	MapEditor.prototype.map_state = null;
 	MapEditor.prototype.google_map = null;
 	MapEditor.prototype.overlay = null;
+	MapEditor.prototype._selected_marker = null;
 
 	MapEditor.prototype.create_google_map = function() {
 		var 		self = this,
@@ -25,10 +26,6 @@
 
 		this.google_map = map;
 
-		var swBound = new google.maps.LatLng(51.491645, -0.149689);
-		var neBound = new google.maps.LatLng(51.513871, -0.104370);
-		var bounds = new google.maps.LatLngBounds(swBound, neBound);
-
 		this.overlay = new PacmanMapOverlay(map, _.bind(this.get_map_data, this));
 
 		GoogleMaps.event.addListener(map, 'click', _.bind( this.handleClickOnMap, this ));
@@ -39,19 +36,22 @@
 				marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
 
 		marker.pacman = {map_vertex: vertex};
+      marker.vertex_id = this.map_state.vertices.length;
 
 		this.map_state.vertices.push( vertex );
-		this.populate_lists();
 		this.overlay.draw();
 
 		GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
+		GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_market_clicked, this, marker ));
 	};
 
 	MapEditor.prototype.handleMarkerDragged = function( marker, event ) {
-
-		console.log(marker, event);
-
 		var vertex = marker.pacman.map_vertex;
+
+      // de-select any maker that could have come from click being fired
+      // before the drag
+      this._selected_marker = null;
+      marker.setAnimation(null);
 
 		vertex.long = event.latLng.lng();
 		vertex.lat = event.latLng.lat();
@@ -59,19 +59,53 @@
 		this.overlay.draw();
 	};
 
-	MapEditor.prototype.populate_lists = function() {
-		$('#vertices').empty();
+   MapEditor.prototype.handle_market_clicked = function(marker, event) {
+      var sm = this._selected_marker;
 
-		_.each(this.map_state.vertices, function(vertex, key) {
-			if (vertex) $('#vertices').append($('<option value="' + key + '">[' + key + '] Long:' + vertex.long + ' Lat:' + vertex.lat + '</option>'));
-		});
+      if (sm) {
+         // halt the bouncing animation as we are finishing the action
+         sm.setAnimation(null);
+         this._selected_marker = null;
 
-		$('#edges').empty();
+         // remove the vertex if the user has selected the same marker twice 
+         // otherwise add/remove an edge between the two selected vertices
+         if (sm === marker) {
+            this.remove_vertex(marker.vertex_id);
+            marker.setVisible(false);
+         } else {
+            var sv = sm.vertex_id, mv = marker.vertex_id;
+            
+            // in order to check if we are adding or removing an edge we will need
+            // to iterate over the array so we may as well attempt to remove an edge
+            // now and use the lengths of the two arrays to dictate where we should
+            // have removed or not
+            var edges = this.map_state.edges.filter(function(e) { return (e.a !== sv && e.b !== mv) || (e.a !== mv && e.b !== sv); });
 
-		_.each(this.map_state.edges, function(edge, key) {
-			$('#edges').append($('<option value="' + key + '">' + edge.a + ' <-> ' + edge.b + '</option>'));
-		});
-	};
+            if (edges.length === this.map_state.edges.length) this.map_state.edges.push({ a: sv, b: mv });
+            else this.map_state.edges = edges;
+         }
+      } else {
+         // start bouncing to indicate selectedness
+         marker.setAnimation(google.maps.Animation.BOUNCE);
+
+         this._selected_marker = marker;
+      }
+
+		this.overlay.draw();
+   };
+
+   MapEditor.prototype.remove_vertex = function (id) {
+      this.map_state.vertices.splice(id, 1);
+      this.map_state.edges = _(this.map_state.edges).filter(
+         function(edge) {
+            return edge.a !== id && edge.b !== id;
+         });
+
+      _(this.map_state.edges).each(function(edge) {
+         edge.a = (edge.a > id) ? (edge.a - 1) : edge.a;
+         edge.b = (edge.b > id) ? (edge.b - 1) : edge.b;
+      });
+   };
 
 /* returns the map data in a form that the renderer and/or db would understand it */
 	MapEditor.prototype.get_map_data = function() {
@@ -95,82 +129,6 @@
 	MapEditor.prototype.init_events = function() {
 
 		var self = this;
-
-		$('#add').bind('click', function(evt) {
-			var long = $('#long').val(),
-				 lat = $('#lat').val();
-
-			$('#long').val('');
-			$('#lat').val('');
-
-			self.map_state.vertices.push({long: +long, lat: +lat});
-			self.populate_lists();
-			self.overlay.draw();
-			evt.preventDefault();
-		});
-
-		$('#join').bind('click', function(evt) {
-			var vertices = $('#vertices').val();
-
-			if (vertices && vertices.length && vertices.length === 2) {
-				self.map_state.edges.push({ a: +vertices[0], b: +vertices[1] });
-				self.populate_lists();
-			} else {
-				alert('incorrect number of vertices selected, must be 2');
-			}
-
-			self.overlay.draw();
-			evt.preventDefault();
-		});
-
-		$('#remove_vertices').bind('click', function(evt) {
-			var vs = $('#vertices').val(),
-				 num_removed = 0;
-
-			function remove_vertex(id) {
-				id = +id - num_removed;
-				self.map_state.vertices.splice(id, 1);
-				self.map_state.edges = _(self.map_state.edges).filter(
-					function(edge) {
-						return edge.a !== id && edge.b !== id;
-					});
-
-				_(self.map_state.edges).each(function(edge) {
-					edge.a = (edge.a > id) ? (edge.a - 1) : edge.a;
-					edge.b = (edge.b > id) ? (edge.b - 1) : edge.b;
-				});
-				num_removed++;
-			}
-
-			if (vs) {
-				if (vs.length) { vs.sort(function(a,b) { return a - b; }); _.each(vs, remove_vertex); }
-				else { remove_vertex(+vs); }
-
-				self.populate_lists();
-			}
-
-			self.overlay.draw();
-			evt.preventDefault();
-		});
-
-		$('#remove_edges').bind('click', function(evt) {
-			var edges_selected = $('#edges').val();
-
-			if (edges_selected) {
-				if (edges_selected.length) {
-					for (var i = 0, len = edges_selected.length; i < len; i++) {
-						self.map_state.edges.splice(+edges_selected[i], 1);
-					}
-				} else {
-					self.map_state.edges.splice(+edges_selected, 1);
-				}
-
-				self.populate_lists();
-			}
-
-			self.overlay.draw();
-			evt.preventDefault();
-		});
 
 		$('#ghost_home').bind('click', function(evt) {
 			self.overlay.draw();
