@@ -46,17 +46,20 @@
 	};
 
 	MapEditor.prototype.handleClickOnMap = function( event ) {
-		var   vertex = {lat: + event.latLng.lat(), 'long': + event.latLng.lng()},
-				marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
+      if (this._selected_marker) this.deselect();
+      else {
+         var   vertex = {lat: + event.latLng.lat(), 'long': + event.latLng.lng()},
+               marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
 
-		marker.pacman = {map_vertex: vertex};
-      marker.vertex_id = this.map_state.vertices.length;
+         marker.pacman = {map_vertex: vertex};
+         marker.vertex_id = this.map_state.vertices.length;
 
-		this.map_state.vertices.push( vertex );
-		this.overlay.draw();
+         this.map_state.vertices.push( vertex );
+         this.overlay.draw();
 
-		GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
-		GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_market_clicked, this, marker ));
+         GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
+         GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_market_clicked, this, marker ));
+      }
 	};
 
 	MapEditor.prototype.handleMarkerDragged = function( marker, event ) {
@@ -77,9 +80,7 @@
       var sm = this._selected_marker;
 
       if (sm) {
-         // halt the bouncing animation as we are finishing the action
-         sm.setAnimation(null);
-         this._selected_marker = null;
+         this.deselect();
 
          // remove the vertex if the user has selected the same marker twice 
          // otherwise add/remove an edge between the two selected vertices
@@ -99,13 +100,22 @@
             else this.map_state.edges = edges;
          }
       } else {
-         // start bouncing to indicate selectedness
-         marker.setAnimation(google.maps.Animation.BOUNCE);
-
-         this._selected_marker = marker;
+         this.select_marker(marker);
       }
 
 		this.overlay.draw();
+   };
+
+   MapEditor.prototype.select_marker = function(marker) {
+      // start bouncing to indicate selectedness
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+      this._selected_marker = marker;
+   };
+
+   MapEditor.prototype.deselect = function() {
+      // halt the bouncing animation as we are finishing the action
+      this._selected_marker.setAnimation(null);
+      this._selected_marker = null;
    };
 
    MapEditor.prototype.remove_vertex = function (id) {
