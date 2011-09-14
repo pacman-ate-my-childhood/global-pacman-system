@@ -1,5 +1,8 @@
 (function(GoogleMaps){
 
+	var DEFAULT_ICON = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%20|66FFFF|000000",
+		 SELECTED_ICON = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%20|FFFF66|000000";
+
 	function MapEditor(){
 		this.map_state =
 			{	edges:[]
@@ -53,6 +56,7 @@
 
          marker.pacman = {map_vertex: vertex};
          marker.vertex_id = this.map_state.vertices.length;
+			marker.setIcon(DEFAULT_ICON);
 
          this.map_state.vertices.push( vertex );
          this.overlay.draw();
@@ -109,10 +113,13 @@
    MapEditor.prototype.select_marker = function(marker) {
       // start bouncing to indicate selectedness
       marker.setAnimation(google.maps.Animation.BOUNCE);
+		marker.setIcon(SELECTED_ICON);
       this._selected_marker = marker;
    };
 
    MapEditor.prototype.deselect = function() {
+		this._selected_marker.setIcon(DEFAULT_ICON);
+
       // halt the bouncing animation as we are finishing the action
       this._selected_marker.setAnimation(null);
       this._selected_marker = null;
