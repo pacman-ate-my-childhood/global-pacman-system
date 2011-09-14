@@ -1,0 +1,15 @@
+#create-map-button {
+
+	display:inline-block;
+	border: 1px black solid;
+	color:yellow;
+	background-color: black;
+	padding: 10px;
+	margin: 5px;
+}
+
+#create-map-button:hover,
+#create-map-button:active{
+	color:black;
+	background-color: yellow;
+}

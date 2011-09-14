@@ -29,23 +29,32 @@
 	MapEditor.prototype._selected_marker = null;
 
 	MapEditor.prototype.create_google_map = function(position) {
+
 		var 		self = this,
 					jMap = $('#map'),
 					latlng = new GoogleMaps.LatLng(position.coords.latitude, position.coords.longitude),
-					map = new GoogleMaps.Map(document.getElementById('map'), { 
+					google_map;
+
+		//adjust map div to be (roughly) as high as screen is happy to show:
+		// jMap.height($(window).height() - 250); - disabled, needs to be smarter on mobile
+
+		google_map = new GoogleMaps.Map(jMap[0], {
                   zoom: (position && position.timestamp) ? 15 : 3, 
-                  center: latlng, 
+                  center: latlng,
+						streetViewControl: false,
                   mapTypeId: GoogleMaps.MapTypeId.ROADMAP 
-               }),
-					// crate a new canvas the same size as the map and insert it using an ELabel:
-					w = jMap.width(),
-					h = jMap.height();
+               });
 
-		this.google_map = map;
 
-		this.overlay = new PacmanMapOverlay(map, _.bind(this.get_map_data, this));
+		this.google_map = google_map;
 
-		GoogleMaps.event.addListener(map, 'click', _.bind( this.handleClickOnMap, this ));
+		this.overlay = new PacmanMapOverlay(google_map, _.bind(this.get_map_data, this));
+
+		GoogleMaps.event.addListener(google_map, 'click', _.bind( this.handleClickOnMap, this ));
+
+		var jCreateButton = $('<a id="create-map-button" href="#">Create Map</a>');
+		jCreateButton.bind('click', _.bind(this._handle_click_create, this));
+		google_map.controls[GoogleMaps.ControlPosition.RIGHT_BOTTOM].push(jCreateButton[0]);
 	};
 
 	MapEditor.prototype.handleClickOnMap = function( event ) {
@@ -98,7 +107,9 @@
             // to iterate over the array so we may as well attempt to remove an edge
             // now and use the lengths of the two arrays to dictate where we should
             // have removed or not
-            var edges = this.map_state.edges.filter(function(e) { return (e.a !== sv && e.b !== mv) || (e.a !== mv && e.b !== sv); });
+            var edges = this.map_state.edges.filter(function(e) {
+					return (e.a !== sv && e.b !== mv) || (e.a !== mv && e.b !== sv);
+				});
 
             if (edges.length === this.map_state.edges.length) this.map_state.edges.push({ a: sv, b: mv });
             else this.map_state.edges = edges;
@@ -156,6 +167,31 @@
 		}
 	};
 
+	MapEditor.prototype._handle_click_create = function(evt) {
+
+		var map_state = this.get_map_data();
+
+		if (!map_state.pacman_home) { alert('Please enter a vertex id to use as the pacman home'); }
+		else if (!map_state.ghost_home) { alert('Please enter a vertex id to use as the ghosts\' home'); }
+		else {
+			$.ajax('/api/map/create', {
+				type: 'POST',
+				dataType: 'json',
+				data: map_state,
+				success: function(data) {
+					if (!data.error) {
+						window.location = window.location.protocol + '//' + window.location.host + '/';
+					}
+					else {
+						alert('error creating map'); console.log(data.error);
+					}
+				}
+			});
+		}
+
+		evt.preventDefault();
+	};
+
 	// todo: split out into separate methods
 	MapEditor.prototype.init_events = function() {
 
@@ -166,32 +202,6 @@
 		});
 		$('#ghost_home').bind('change', function(evt) {
 			self.overlay.draw();
-		});
-
-		$('#create').bind('click', function(evt) {
-
-			var map_state = self.get_map_data();
-
-
-			if (!map_state.pacman_home) { alert('Please enter a vertex id to use as pacmans home'); }
-			else if (!map_state.ghost_home) { alert('Please enter a vertex id to use as the ghosts home'); }
-			else {
-				$.ajax('/api/map/create', {
-					type: 'POST',
-					dataType: 'json',
-					data: map_state,
-					success: function(data) {
-						if (!data.error) {
-							window.location = window.location.protocol + '//' + window.location.host + '/';
-						}
-						else {
-							alert('error creating map'); console.log(data.error);
-						}
-					}
-				});
-			}
-
-			evt.preventDefault();
 		});
 	};
 
