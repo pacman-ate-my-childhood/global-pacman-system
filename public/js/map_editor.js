@@ -58,7 +58,7 @@
          this.overlay.draw();
 
          GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
-         GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_market_clicked, this, marker ));
+         GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_marker_clicked, this, marker ));
       }
 	};
 
@@ -76,7 +76,7 @@
 		this.overlay.draw();
 	};
 
-   MapEditor.prototype.handle_market_clicked = function(marker, event) {
+   MapEditor.prototype.handle_marker_clicked = function(marker, event) {
       var sm = this._selected_marker;
 
       if (sm) {
