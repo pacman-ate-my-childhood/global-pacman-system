@@ -1,7 +1,10 @@
 (function(GoogleMaps){
 
 	var DEFAULT_ICON = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%20|66FFFF|000000",
-		 SELECTED_ICON = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%20|FFFF66|000000";
+		 SELECTED_ICON = "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%20|FFFF66|000000",
+		 SNAP_DISTANCE = 0.00018,
+		 SNAP_DISTANCE_SQUARED = SNAP_DISTANCE * SNAP_DISTANCE;
+
 
 	function MapEditor(){
 		this.map_state =
@@ -60,27 +63,52 @@
 
 
 	MapEditor.prototype.handleClickOnMap = function( event ) {
-      if (this._selected_marker) this.deselect();
-      else {
-         var   vertex = {lat: + event.latLng.lat(), 'long': + event.latLng.lng()},
-               marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
+      if (this._selected_marker) {
+			this.deselect();
+			return;
+		}
 
-         marker.pacman = {map_vertex: vertex};
-         marker.vertex_id = this.map_state.vertices.length;
-			marker.setIcon(DEFAULT_ICON);
+		// shortcuts:
+		var vertices = this.map_state.vertices,
+			 edges = this.map_state.edges;
 
-         this.map_state.vertices.push( vertex );
-         this.overlay.draw();
+		var mapData = this.get_map_data(),
+			 distanceToClosestEdge = closestPointOnGraph( mapData.vertices, mapData.edges, event.latLng.lng(), event.latLng.lat() ),
 
-         GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
-         GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_marker_clicked, this, marker ));
+			 newVertex = {lat: + event.latLng.lat(), 'long': + event.latLng.lng()},
+			 newVertex_id = this.map_state.vertices.length,
+			 marker = new GoogleMaps.Marker({ position: event.latLng, map: this.google_map, draggable:true });
 
-			// during dragging, need to be able to see the google map under the pacman map to position points
-			// property:
-			GoogleMaps.event.addListener(marker, 'dragstart', _.bind( this.overlay.makeTransluent, this.overlay ));
-			GoogleMaps.event.addListener(marker, 'dragend', _.bind( this.overlay.makeSolid, this.overlay ));
-      }
+		marker.pacman = {map_vertex: newVertex};
+		marker.vertex_id = newVertex_id;
+
+		if( distanceToClosestEdge && distanceToClosestEdge.distanceSquared < SNAP_DISTANCE_SQUARED ) {
+			// snapped: insert new vertex into the existing edge:
+			var vertex_b_id = distanceToClosestEdge.edge.b;
+
+			// shorted old edge
+			distanceToClosestEdge.edge.b = newVertex_id;
+			// insert new edge for rest of distance to make up the difference:
+			this.map_state.edges.push({ a: newVertex_id, b: vertex_b_id });
+		}
+
+		marker.setIcon(DEFAULT_ICON);
+
+		this.map_state.vertices.push( newVertex );
+		this.overlay.draw();
+
+		this._initEventsForMarker(marker);
 	};
+
+	MapEditor.prototype._initEventsForMarker = function( marker ) {
+		GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
+		GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_marker_clicked, this, marker ));
+
+		// during dragging, need to be able to see the google map under the pacman map to position points
+		// property:
+		GoogleMaps.event.addListener(marker, 'dragstart', _.bind( this.overlay.makeTransluent, this.overlay ));
+		GoogleMaps.event.addListener(marker, 'dragend', _.bind( this.overlay.makeSolid, this.overlay ));
+	}
 
 	MapEditor.prototype.handleMarkerDragged = function( marker, event ) {
 		var vertex = marker.pacman.map_vertex;
