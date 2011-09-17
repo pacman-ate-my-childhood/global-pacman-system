@@ -209,12 +209,17 @@ Engine.render_pacman = function(name, xy, prev_xy, ctx) {
 	ctx.rotate(angle);
 
 	ctx.beginPath();
-	ctx.moveTo(0,0);
+	ctx.lineTo(0,0);
 	ctx.arc(0,0, PACMAN_SIZE_HALF, 2*Math.PI - mouth_open_angle, mouth_open_angle, true);
-	ctx.moveTo(0,0);
+	ctx.lineTo(0,0);
 
 	ctx.fillStyle = PACMAN_COLOR;
 	ctx.fill();
+
+	ctx.strokeStyle = "black";
+	ctx.lineWidth = 1;
+
+	ctx.stroke();
 
 	ctx.restore();
 };
