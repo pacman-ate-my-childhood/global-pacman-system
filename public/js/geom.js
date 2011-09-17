@@ -1,9 +1,5 @@
 
 
-function angleOfLine( x0, y0, x1, y1 ) {
-
-}
-
 function distanceToLine( x, y, x0, y0, x1, y1 ) {
 	var closest = closestPointOnLine( x, y, x0, y0, x1, y1 );
 
