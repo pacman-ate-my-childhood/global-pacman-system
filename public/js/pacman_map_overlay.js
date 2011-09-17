@@ -31,7 +31,7 @@
 
 		var jCanvas = jQuery("<canvas width='10' height='10'>"),
 			 canvas = jCanvas[0],
-			 jCanvasWrap = jCanvas.wrap('<div class="editorCanvasWrap" style="position:absolute; opacity:0.9" />').parent();
+			 jCanvasWrap = jCanvas.wrap('<div class="editorCanvasWrap" style="position:absolute" />').parent();
 		this.jCanvasWrap = jCanvasWrap;
 		this.map_view = new Map_View(jCanvas, true);
 
@@ -48,6 +48,14 @@
 		GoogleMaps.event.addListener(this.google_map, "bounds_changed", function(){
 			self.draw();
 		});
+	};
+
+	PacmanMapOverlay.prototype.makeTransluent = function() {
+		this.jCanvasWrap.css('opacity', '0.4');
+	};
+
+	PacmanMapOverlay.prototype.makeSolid = function() {
+		this.jCanvasWrap.css('opacity', '1');
 	};
 
 	/* draw is called sometimes by GM api but mostly by us in response to bounds change

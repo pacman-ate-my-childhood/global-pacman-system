@@ -57,6 +57,8 @@
 		google_map.controls[GoogleMaps.ControlPosition.RIGHT_BOTTOM].push(jCreateButton[0]);
 	};
 
+
+
 	MapEditor.prototype.handleClickOnMap = function( event ) {
       if (this._selected_marker) this.deselect();
       else {
@@ -72,6 +74,11 @@
 
          GoogleMaps.event.addListener(marker, 'drag', _.bind( this.handleMarkerDragged, this, marker ));
          GoogleMaps.event.addListener(marker, 'click', _.bind( this.handle_marker_clicked, this, marker ));
+
+			// during dragging, need to be able to see the google map under the pacman map to position points
+			// property:
+			GoogleMaps.event.addListener(marker, 'dragstart', _.bind( this.overlay.makeTransluent, this.overlay ));
+			GoogleMaps.event.addListener(marker, 'dragend', _.bind( this.overlay.makeSolid, this.overlay ));
       }
 	};
 
