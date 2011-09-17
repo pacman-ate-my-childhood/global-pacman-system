@@ -51,11 +51,11 @@
 	};
 
 	PacmanMapOverlay.prototype.makeTransluent = function() {
-		this.jCanvasWrap.css('opacity', '0.4');
+		this.jCanvasWrap.animate({opacity: 0.4});
 	};
 
 	PacmanMapOverlay.prototype.makeSolid = function() {
-		this.jCanvasWrap.css('opacity', '1');
+		this.jCanvasWrap.animate({opacity: 1});
 	};
 
 	/* draw is called sometimes by GM api but mostly by us in response to bounds change

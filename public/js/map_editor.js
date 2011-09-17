@@ -107,7 +107,9 @@
 		// during dragging, need to be able to see the google map under the pacman map to position points
 		// property:
 		GoogleMaps.event.addListener(marker, 'dragstart', _.bind( this.overlay.makeTransluent, this.overlay ));
+		GoogleMaps.event.addListener(marker, 'dragstart', _.bind( marker.setIcon, marker, SELECTED_ICON ));
 		GoogleMaps.event.addListener(marker, 'dragend', _.bind( this.overlay.makeSolid, this.overlay ));
+		GoogleMaps.event.addListener(marker, 'dragend', _.bind( marker.setIcon, marker, DEFAULT_ICON ));
 	}
 
 	MapEditor.prototype.handleMarkerDragged = function( marker, event ) {
