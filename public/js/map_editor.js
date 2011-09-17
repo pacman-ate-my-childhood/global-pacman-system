@@ -234,12 +234,12 @@
 
 		var self = this;
 
-		$('#ghost_home').bind('click', function(evt) {
-			self.overlay.draw();
-		});
-		$('#ghost_home').bind('change', function(evt) {
-			self.overlay.draw();
-		});
+		$('#ghost_home, #pacman_home')
+			.bind('click', function(evt) {
+				self.overlay.draw();
+			}).bind('change', function(evt) {
+				self.overlay.draw();
+			});
 	};
 
 	window.MapEditor = MapEditor;
